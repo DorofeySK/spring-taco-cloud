@@ -3,23 +3,25 @@ package tacos.datas;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
+
+import tacos.interfaces.IIngredientRepository;
 
 @Component
 public class IngredientByIdConventer implements Converter<String, Ingredient> {
 
-	private Map<String, Ingredient> ingredientMap = new HashMap<>();
+	private IIngredientRepository ingredientRepo;
 	
-	public IngredientByIdConventer() {
-		for (Ingredient ingredient : IngredientFactory.getDefault()) {
-			ingredientMap.put(ingredient.getId(), ingredient);
-		}
+	@Autowired
+	public IngredientByIdConventer(IIngredientRepository ingredientRepo) {
+		this.ingredientRepo = this.ingredientRepo;
 	}
 	
 	@Override
 	public Ingredient convert(String source) {
-		return ingredientMap.get(source);
+		return ingredientRepo.findById(source).orElse(null);
 	}
 
 }

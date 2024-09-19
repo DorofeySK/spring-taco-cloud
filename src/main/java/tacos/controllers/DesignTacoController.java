@@ -3,7 +3,9 @@ package tacos.controllers;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -17,6 +19,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import tacos.datas.Ingredient;
 import tacos.datas.Ingredient.Type;
+import tacos.interfaces.IIngredientRepository;
 import tacos.datas.IngredientFactory;
 import tacos.datas.Taco;
 import tacos.datas.TacoOrder;
@@ -26,17 +29,24 @@ import tacos.datas.TacoOrder;
 @RequestMapping("/design")
 @SessionAttributes("tacoOrder")
 public class DesignTacoController {
+	private final IIngredientRepository ingredientRepo;
+	
+	@Autowired
+	public DesignTacoController(IIngredientRepository ingredientRepo) {
+		this.ingredientRepo = ingredientRepo;
+	}
+	
 	@ModelAttribute
 	public void addIngredientsToModel(Model model) {
-		List<Ingredient> ingredients = IngredientFactory.getDefault();
+		Iterable<Ingredient> ingredients = ingredientRepo.findAll();
 		final Type types[] = Ingredient.Type.values();
 		for (Type type : types) {
 			model.addAttribute(type.toString().toLowerCase(), filterByType(ingredients, type));
 		}
 	}
 	
-	private Iterable<Ingredient> filterByType(List<Ingredient> ingredients, Type type) {
-		return ingredients.stream()
+	private Iterable<Ingredient> filterByType(Iterable<Ingredient> ingredients, Type type) {
+		return StreamSupport.stream(ingredients.spliterator(), false)
 			.filter(x->x.getType().equals(type))
 			.collect(Collectors.toList());
 	}
