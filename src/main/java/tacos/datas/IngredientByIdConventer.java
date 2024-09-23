@@ -16,7 +16,7 @@ public class IngredientByIdConventer implements Converter<String, Ingredient> {
 	
 	@Autowired
 	public IngredientByIdConventer(IIngredientRepository ingredientRepo) {
-		this.ingredientRepo = this.ingredientRepo;
+		this.ingredientRepo = ingredientRepo;
 	}
 	
 	@Override
