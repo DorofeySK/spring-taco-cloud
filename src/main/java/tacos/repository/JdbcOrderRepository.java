@@ -20,8 +20,11 @@ import tacos.interfaces.IOrderRepository;
 @Repository
 public class JdbcOrderRepository implements IOrderRepository {
 	private JdbcOperations jdbcOperations;
-	public JdbcOrderRepository(JdbcOperations jdbcOperations) {
+	private JdbcSequenceRepository seqRepository;
+	
+	public JdbcOrderRepository(JdbcOperations jdbcOperations, JdbcSequenceRepository seqRepository) {
 		this.jdbcOperations = jdbcOperations;
+		this.seqRepository = seqRepository;
 	}
 	
 	@Override
@@ -29,51 +32,45 @@ public class JdbcOrderRepository implements IOrderRepository {
 	public TacoOrder save(TacoOrder order) {
 		PreparedStatementCreatorFactory pscf = new PreparedStatementCreatorFactory(
 			"insert into tacoorder ("
-			+ "deliveryName, deliveryStreet, deliveryCity, "
+			+ "id, deliveryName, deliveryStreet, deliveryCity, "
 			+ "deliveryState, deliveryZip, ccNumber, ccExpiration, "
-			+ "ccCVV, placedAt) values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-			Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,
+			+ "ccCVV, placedAt) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			Types.INTEGER, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,
 			Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.TIMESTAMP
 		);
-		pscf.setReturnGeneratedKeys(true);
+		order.setId(seqRepository.getNextTacoOrderSequence());
 		order.setPlacedAt(new Date());
 		PreparedStatementCreator creator = pscf.newPreparedStatementCreator(
-			Arrays.asList(order.getDeliveryName(), order.getDeliveryStreet(),
+			Arrays.asList(order.getId(), order.getDeliveryName(), order.getDeliveryStreet(),
 			order.getDeliveryCity(), order.getDeliveryState(), order.getDeliveryZip(),
 			order.getCcNumber(), order.getCcExpiration(), order.getCcCVV(),
 			order.getPlacedAt())
 		);
 		
-		GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-		jdbcOperations.update(creator, keyHolder);
-		Long orderId = keyHolder.getKey().longValue();
-		order.setId(orderId);
+		jdbcOperations.update(creator);
 		List<Taco> tacos = order.getTacos();
 		int seq = 0;
 		for (Taco taco : tacos) {
-			saveTaco(orderId, seq++, taco);
+			saveTaco(order.getId(), seq++, taco);
 		}
 		return order;
 	}
 	
 	private Long saveTaco(Long orderId, int orderSeq, Taco taco) {
+		taco.setId(seqRepository.getNextTacoSequence());
 		taco.setCreateAt(new Date());
 		PreparedStatementCreatorFactory pscf = new PreparedStatementCreatorFactory(
 			"insert into taco "
-			+ "(name, tacoOrderId, tacoOrderKey, createdAt) "
-			+ "values (?, ?, ?, ?)",
-			Types.VARCHAR, Types.INTEGER, Types.INTEGER, Types.TIMESTAMP
+			+ "(id, name, tacoOrderId, tacoOrderKey, createdAt) "
+			+ "values (?, ?, ?, ?, ?)",
+			Types.INTEGER, Types.VARCHAR, Types.INTEGER, Types.INTEGER, Types.TIMESTAMP
 		);
-		pscf.setReturnGeneratedKeys(true);
 		PreparedStatementCreator creaetor = pscf.newPreparedStatementCreator(
-			Arrays.asList(taco.getName(), orderId, orderSeq, taco.getCreateAt())
+			Arrays.asList(taco.getId(), taco.getName(), orderId, orderSeq, taco.getCreateAt())
 		);
-		GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-		jdbcOperations.update(creaetor, keyHolder);
-		Long tacoId = keyHolder.getKey().longValue();
-		taco.setId(tacoId);
-		saveIngredientRefs(tacoId, taco.getIngredients());
-		return tacoId;
+		jdbcOperations.update(creaetor);
+		saveIngredientRefs(taco.getId(), taco.getIngredients());
+		return taco.getId();
 	}
 	
 	private void saveIngredientRefs(Long tacoId, List<Ingredient> ingredients) {
