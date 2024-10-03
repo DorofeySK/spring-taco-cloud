@@ -20,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import tacos.datas.Ingredient;
 import tacos.datas.Ingredient.Type;
 import tacos.interfaces.IIngredientRepository;
+import tacos.interfaces.IOrderRepository;
+import tacos.interfaces.ITacoRepository;
 import tacos.datas.IngredientFactory;
 import tacos.datas.Taco;
 import tacos.datas.TacoOrder;
@@ -30,10 +32,14 @@ import tacos.datas.TacoOrder;
 @SessionAttributes("tacoOrder")
 public class DesignTacoController {
 	private final IIngredientRepository ingredientRepo;
+	private final IOrderRepository orderRepo;
+	private final ITacoRepository tacoRepo;
 	
 	@Autowired
-	public DesignTacoController(IIngredientRepository ingredientRepo) {
+	public DesignTacoController(IIngredientRepository ingredientRepo, IOrderRepository orderRepo, ITacoRepository tacoRepo) {
 		this.ingredientRepo = ingredientRepo;
+		this.orderRepo = orderRepo;
+		this.tacoRepo = tacoRepo;
 	}
 	
 	@ModelAttribute
@@ -53,7 +59,9 @@ public class DesignTacoController {
 	
 	@ModelAttribute(name = "tacoOrder")
 	public TacoOrder order() {
-		return new TacoOrder();
+		final TacoOrder order = new TacoOrder();
+		order.setId(orderRepo.getNextTacoOrderId());
+		return order;
 	}
 	
 	@ModelAttribute(name = "taco")
@@ -71,6 +79,8 @@ public class DesignTacoController {
 		if (errors.hasErrors() == true) {
 			return "design";
 		}
+		taco.setId(tacoRepo.getNextTacoId());
+		taco.setTacoOrderId(tacoOrder.getId());
 		tacoOrder.addTaco(taco);
 		log.info("Processing taco: {}", taco);
 		return "redirect:/orders/current";

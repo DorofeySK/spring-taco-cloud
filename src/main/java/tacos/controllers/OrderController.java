@@ -1,5 +1,7 @@
 package tacos.controllers;
 
+import java.util.Date;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,9 +10,15 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
 import jakarta.validation.Valid;
+import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
+import tacos.datas.Ingredient;
+import tacos.datas.IngredientRef;
+import tacos.datas.Taco;
 import tacos.datas.TacoOrder;
-import tacos.repository.JdbcOrderRepository;
+import tacos.interfaces.IIngredientRefRepository;
+import tacos.interfaces.IOrderRepository;
+import tacos.interfaces.ITacoRepository;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,10 +29,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/orders")
 @SessionAttributes("tacoOrder")
 public class OrderController {
-	private JdbcOrderRepository orderRepo;
+	private IOrderRepository orderRepo;
+	private ITacoRepository tacoRepo;
+	private IIngredientRefRepository refRepo;
 	
-	public OrderController(JdbcOrderRepository orderRepo) {
+	public OrderController(IOrderRepository orderRepo, ITacoRepository tacoRepo, IIngredientRefRepository refRepo) {
 		this.orderRepo = orderRepo;
+		this.tacoRepo = tacoRepo;
+		this.refRepo = refRepo;
 	}
 	
 	@GetMapping("/current")
@@ -37,8 +49,16 @@ public class OrderController {
 		if (errors.hasErrors() == true) {
 			return "orderForm";
 		}
-		
+		log.info("Processing order: {}", order);
+		order.setPlacedAt(new Date());
 		orderRepo.save(order);
+//		for (Taco taco : order.getTacos()) {
+//			taco.setCreateAt(new Date());
+//			tacoRepo.save(taco);
+//			for (Ingredient ingredient : taco.getIngredients()) {
+//				refRepo.save(new IngredientRef(new IngredientRef.Pk(taco.getId(), ingredient.getId())));
+//			}
+//		}
 		sessionStatus.setComplete();
 		return "redirect:/";
 	}
