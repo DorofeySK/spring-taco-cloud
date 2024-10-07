@@ -21,8 +21,11 @@ public class Taco {
 	@SequenceGenerator(name = "tacoseq", allocationSize = 1)
 	private Long id;
 	
-	@Column(name = "createat")
+	@Column(name = "createdat")
 	private Date createAt = new Date();
+	
+//	@Column(name = "tacoorderid")
+//	private Long tacoOrderId;
 	
 	@Column(name = "name")
 	@NotNull
