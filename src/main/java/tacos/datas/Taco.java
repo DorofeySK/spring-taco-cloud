@@ -7,6 +7,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.validation.constraints.NotNull;
@@ -35,6 +37,11 @@ public class Taco {
 	@NotNull
 	@Size(min=1, message="You must choose more than 1 ingredient")
 	@ManyToMany()
+	@JoinTable(
+	  name = "ingredientref", 
+	  joinColumns = @JoinColumn(name = "taco_id"), 
+	  inverseJoinColumns = @JoinColumn(name = "ingredient_id")
+	)
 	private List<Ingredient> ingredients;
 
 	public void addIngredient(Ingredient ingredient) {
