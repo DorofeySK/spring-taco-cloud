@@ -1,5 +1,7 @@
 package tacos.controllers;
 
+import java.util.Date;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,11 +11,11 @@ import org.springframework.web.bind.support.SessionStatus;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import tacos.datas.Taco;
 import tacos.datas.TacoOrder;
-import tacos.repository.JdbcOrderRepository;
+import tacos.interfaces.IOrderRepository;
 
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 @Slf4j
@@ -21,9 +23,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/orders")
 @SessionAttributes("tacoOrder")
 public class OrderController {
-	private JdbcOrderRepository orderRepo;
+	private IOrderRepository orderRepo;
 	
-	public OrderController(JdbcOrderRepository orderRepo) {
+	public OrderController(IOrderRepository orderRepo) {
 		this.orderRepo = orderRepo;
 	}
 	
@@ -37,7 +39,8 @@ public class OrderController {
 		if (errors.hasErrors() == true) {
 			return "orderForm";
 		}
-		
+		log.info("Processing taco: {}", order);
+		order.setPlacedAt(new Date());
 		orderRepo.save(order);
 		sessionStatus.setComplete();
 		return "redirect:/";
