@@ -1,4 +1,4 @@
-package tacos.interfaces;
+package tacos.repository;
 
 import org.springframework.data.repository.CrudRepository;
 

@@ -13,7 +13,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import tacos.datas.Taco;
 import tacos.datas.TacoOrder;
-import tacos.interfaces.IOrderRepository;
+import tacos.repository.IOrderRepository;
 
 import org.springframework.web.bind.annotation.PostMapping;
 

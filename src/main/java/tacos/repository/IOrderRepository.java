@@ -1,4 +1,4 @@
-package tacos.interfaces;
+package tacos.repository;
 
 import java.util.Date;
 import java.util.List;

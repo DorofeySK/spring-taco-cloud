@@ -19,7 +19,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import tacos.datas.Ingredient;
 import tacos.datas.Ingredient.Type;
-import tacos.interfaces.IIngredientRepository;
+import tacos.repository.IIngredientRepository;
 import tacos.datas.IngredientFactory;
 import tacos.datas.Taco;
 import tacos.datas.TacoOrder;

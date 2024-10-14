@@ -1,13 +1,10 @@
 package tacos.datas;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import tacos.interfaces.IIngredientRepository;
+import tacos.repository.IIngredientRepository;
 
 @Component
 public class IngredientByIdConventer implements Converter<String, Ingredient> {

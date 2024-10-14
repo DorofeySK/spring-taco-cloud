@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import tacos.datas.Ingredient;
 import tacos.datas.Ingredient.Type;
-import tacos.interfaces.IIngredientRepository;
+import tacos.repository.IIngredientRepository;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
